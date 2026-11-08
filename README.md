@@ -1,4 +1,4 @@
-# PrivatePortfolio
+# Private Portfolio
 
 A privacy-aware portfolio analysis prototype for the NEAR Hackathon. It combines NEAR AI Cloud inference with NEAR Intents 1Click quote previews.
 
