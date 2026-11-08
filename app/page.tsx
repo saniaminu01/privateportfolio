@@ -1,10 +1,17 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Activity, ArrowDownUp, ArrowUpRight, BadgeCheck, BarChart3, Bell, ChevronDown, CircleHelp, Coins, Cpu, Eye, Fingerprint, LayoutDashboard, LockKeyhole, Plus, RefreshCw, ScanEye, Settings, ShieldCheck, Sparkles, Wallet, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 type Holding = { symbol: string; name: string; quantity: number; valueUsd: number; color: string };
+type Token = {
+  assetId: string;
+  symbol: string;
+  decimals: number;
+  blockchain: string;
+  price?: number;
+};
 const initial: Holding[] = [
   { symbol:"ETH", name:"Ethereum", quantity:1.42, valueUsd:4928, color:"#9b8cff" },
   { symbol:"BTC", name:"Bitcoin", quantity:0.042, valueUsd:2780, color:"#e7b65b" },
@@ -22,8 +29,16 @@ export default function Home() {
   const [showAdd,setShowAdd] = useState(false);
   const [form,setForm] = useState({symbol:"",name:"",quantity:"",valueUsd:""});
   const [wallet,setWallet] = useState("");
-  const [quote,setQuote] = useState<any>(null);
-  const [quoteStatus,setQuoteStatus] = useState("");
+const [quote,setQuote] = useState<any>(null);
+const [quoteStatus,setQuoteStatus] = useState("");
+const [tokens,setTokens] = useState<Token[]>([]);
+const [tokenSearch,setTokenSearch] = useState("");
+const [fromAsset,setFromAsset] = useState("");
+const [toAsset,setToAsset] = useState("");
+const [swapAmount,setSwapAmount] = useState("");
+const [recipient,setRecipient] = useState("");
+const [refundTo,setRefundTo] = useState("");
+const [tokensLoading,setTokensLoading] = useState(false);
   const total = useMemo(()=>holdings.reduce((s,h)=>s+h.valueUsd,0),[holdings]);
   const nav = [
     {name:"Overview",icon:LayoutDashboard},{name:"Portfolio",icon:Wallet},{name:"AI Analysis",icon:Sparkles},{name:"Swap Assistant",icon:ArrowDownUp},{name:"Activity",icon:Activity},{name:"Settings",icon:Settings}
