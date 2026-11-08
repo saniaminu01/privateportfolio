@@ -29,17 +29,47 @@ export default function Home() {
   const [showAdd,setShowAdd] = useState(false);
   const [form,setForm] = useState({symbol:"",name:"",quantity:"",valueUsd:""});
   const [wallet,setWallet] = useState("");
-const [quote,setQuote] = useState<any>(null);
-const [quoteStatus,setQuoteStatus] = useState("");
-const [tokens,setTokens] = useState<Token[]>([]);
-const [tokenSearch,setTokenSearch] = useState("");
-const [fromAsset,setFromAsset] = useState("");
-const [toAsset,setToAsset] = useState("");
-const [swapAmount,setSwapAmount] = useState("");
-const [recipient,setRecipient] = useState("");
-const [refundTo,setRefundTo] = useState("");
-const [tokensLoading,setTokensLoading] = useState(false);
+  const [quote,setQuote] = useState<any>(null);
+  const [quoteStatus,setQuoteStatus] = useState("");
+  const [tokens,setTokens] = useState<Token[]>([]);
+  const [tokenSearch,setTokenSearch] = useState("");
+  const [fromAsset,setFromAsset] = useState("");
+  const [toAsset,setToAsset] = useState("");
+  const [swapAmount,setSwapAmount] = useState("");
+  const [recipient,setRecipient] = useState("");
+  const [refundTo,setRefundTo] = useState("");
+  const [tokensLoading,setTokensLoading] = useState(false);
   const total = useMemo(()=>holdings.reduce((s,h)=>s+h.valueUsd,0),[holdings]);
+  useEffect(() => {
+  if (tab !== "Swap Assistant" || tokens.length > 0) return;
+
+  async function loadTokens() {
+    setTokensLoading(true);
+    try {
+      const response = await fetch("/api/tokens");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not load tokens.");
+      }
+
+      const list = Array.isArray(data) ? data : data.tokens || [];
+      setTokens(list);
+
+      const near = list.find((token: Token) => token.symbol === "wNEAR");
+      const usdc = list.find((token: Token) => token.symbol === "USDC");
+
+      if (near) setFromAsset(near.assetId);
+      if (usdc) setToAsset(usdc.assetId);
+    } catch (error: any) {
+      setQuoteStatus(error.message || "Could not load supported tokens.");
+    } finally {
+      setTokensLoading(false);
+    }
+  }
+
+  loadTokens();
+}, [tab, tokens.length]);
   const nav = [
     {name:"Overview",icon:LayoutDashboard},{name:"Portfolio",icon:Wallet},{name:"AI Analysis",icon:Sparkles},{name:"Swap Assistant",icon:ArrowDownUp},{name:"Activity",icon:Activity},{name:"Settings",icon:Settings}
   ];
