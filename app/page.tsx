@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { Activity, ArrowDownUp, ArrowUpRight, BadgeCheck, BarChart3, Bell, ChevronDown, CircleHelp, Coins, Cpu, Eye, Fingerprint, LayoutDashboard, LockKeyhole, Plus, RefreshCw, ScanEye, Settings, ShieldCheck, Sparkles, Wallet, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 type Holding = { symbol: string; name: string; quantity: number; valueUsd: number; color: string };
 const initial: Holding[] = [
