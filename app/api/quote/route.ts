@@ -10,14 +10,22 @@ export async function POST(req: Request) {
       }
     }
     if (!/^\d+$/.test(input.amount)) return NextResponse.json({ error: "Amount must be in the token's smallest unit (integer string)." }, { status: 400 });
-    const payload = {
+        const payload = {
       dry: true,
       swapType: "EXACT_INPUT",
       originAsset: input.originAsset,
       destinationAsset: input.destinationAsset,
       amount: input.amount,
+
+      depositType: "ORIGIN_CHAIN",
+      refundType: "ORIGIN_CHAIN",
+      recipientType: "DESTINATION_CHAIN",
+
       recipient: input.recipient,
       refundTo: input.refundTo,
+
+      deadline: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+
       slippageTolerance: 100,
       quoteWaitingTimeMs: 3000
     };
