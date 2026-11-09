@@ -7,7 +7,27 @@ export async function POST(req: Request) {
   if (!apiKey) return NextResponse.json({ error: "NEAR AI key is not configured. Add NEAR_AI_API_KEY in your environment." }, { status: 503 });
 
   try {
-    const { holdings } = await req.json();
+    const rawBody = await req.text();
+
+if (new TextEncoder().encode(rawBody).byteLength > 16384) {
+  return NextResponse.json(
+    { error: "Request is too large. Please reduce your portfolio data." },
+    { status: 413 }
+  );
+}
+
+let input;
+
+try {
+  input = JSON.parse(rawBody);
+} catch {
+  return NextResponse.json(
+    { error: "Invalid JSON request body." },
+    { status: 400 }
+  );
+}
+
+const holdings = input?.holdings;
     if (!Array.isArray(holdings) || holdings.length === 0) {
       return NextResponse.json({ error: "Add at least one holding before analysis." }, { status: 400 });
     }
