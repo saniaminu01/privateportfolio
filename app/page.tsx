@@ -623,6 +623,16 @@ async function previewQuote() {
             )}
 
             {quoteStatus && <div className="result-box">{quoteStatus}</div>}
+
+{quote && (
+  <div className="result-box markdown-content">
+    <h3>Quote details</h3>
+    <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+      {JSON.stringify(quote, null, 2)}
+    </pre>
+    <p>Preview only. No transaction was executed.</p>
+  </div>
+)}
           </div>
         </section>
 
