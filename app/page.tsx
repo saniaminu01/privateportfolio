@@ -235,7 +235,6 @@ async function previewQuote() {
   }
 }
 
-  }
 
   const filteredTokens = tokens.filter(t =>
     (t.symbol + " " + t.blockchain)
