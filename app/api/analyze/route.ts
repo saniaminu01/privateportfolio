@@ -16,9 +16,25 @@ export async function POST(req: Request) {
       quantity: Number(h.quantity),
       valueUsd: Number(h.valueUsd)
     }));
-    if (safeHoldings.some((h: any) => !h.symbol || !Number.isFinite(h.quantity) || !Number.isFinite(h.valueUsd) || h.valueUsd < 0)) {
-      return NextResponse.json({ error: "One or more holdings are invalid." }, { status: 400 });
-    }
+   if (holdings.length > 50) {
+  return NextResponse.json(
+    { error: "A maximum of 50 holdings is allowed." },
+    { status: 400 }
+  );
+}
+
+if (safeHoldings.some((h: any) =>
+  !h.symbol.trim() ||
+  !Number.isFinite(h.quantity) ||
+  h.quantity <= 0 ||
+  !Number.isFinite(h.valueUsd) ||
+  h.valueUsd < 0
+)) {
+  return NextResponse.json(
+    { error: "One or more holdings are invalid. Quantities must be positive and values cannot be negative." },
+    { status: 400 }
+  );
+}
 
     const upstream = await fetch("https://cloud-api.near.ai/v1/chat/completions", {
       method: "POST",
