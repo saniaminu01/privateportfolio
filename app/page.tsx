@@ -173,11 +173,68 @@ export default function Home() {
     setShowAdd(false);
   }
 
-  async function previewQuote() {
-    setQuote(null);
-    setQuoteStatus(
-      "The token form is ready, but quote requests are not connected yet. We still need to implement amount conversion and the 1Click API request."
-    );
+  
+async function previewQuote() {
+  setQuote(null);
+
+  try {
+    const origin = tokens.find(t => t.assetId === fromAsset);
+    const destination = tokens.find(t => t.assetId === toAsset);
+
+    if (!origin || !destination) {
+      throw new Error("Please select both tokens.");
+    }
+
+    if (fromAsset === toAsset) {
+      throw new Error("Choose two different tokens.");
+    }
+
+    if (!/^\d+(\.\d+)?$/.test(swapAmount) || Number(swapAmount) <= 0) {
+      throw new Error("Enter a valid amount greater than zero.");
+    }
+
+    if (!recipient.trim() || !refundTo.trim()) {
+      throw new Error("Enter both recipient and refund addresses.");
+    }
+
+    const [whole, fraction = ""] = swapAmount.split(".");
+
+    if (fraction.length > origin.decimals) {
+      throw new Error(`This token supports up to ${origin.decimals} decimal places.`);
+    }
+
+    const amount =
+      (BigInt(whole) * (10n ** BigInt(origin.decimals)) +
+      BigInt((fraction + "0".repeat(origin.decimals)).slice(0, origin.decimals)))
+      .toString();
+
+    setQuoteStatus("Requesting a quote from NEAR Intents 1Click...");
+
+    const response = await fetch("/api/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        originAsset: fromAsset,
+        destinationAsset: toAsset,
+        amount,
+        recipient: recipient.trim(),
+        refundTo: refundTo.trim()
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "The 1Click quote request failed.");
+    }
+
+    setQuote(data);
+    setQuoteStatus("Quote received. Preview only — no transaction was executed.");
+  } catch (error: any) {
+    setQuoteStatus(error.message || "Unable to request a quote.");
+  }
+}
+
   }
 
   const filteredTokens = tokens.filter(t =>
