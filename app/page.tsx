@@ -627,9 +627,39 @@ async function previewQuote() {
 {quote && (
   <div className="result-box markdown-content">
     <h3>Quote details</h3>
-    <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-      {JSON.stringify(quote, null, 2)}
-    </pre>
+    <div className="quote-summary">
+  <div className="quote-stat">
+    <span>You pay</span>
+    <strong>
+      {quote.quote.amountInFormatted}{" "}
+      {tokens.find(t => t.assetId === fromAsset)?.symbol}
+    </strong>
+  </div>
+
+  <div className="quote-stat">
+    <span>Estimated output</span>
+    <strong>
+      {quote.quote.amountOutFormatted}{" "}
+      {tokens.find(t => t.assetId === toAsset)?.symbol}
+    </strong>
+  </div>
+
+  <div className="quote-stat">
+    <span>Minimum output</span>
+    <strong>
+      {quote.quote.minAmountOut
+        ? (Number(quote.quote.minAmountOut) /
+          10 ** (tokens.find(t => t.assetId === toAsset)?.decimals || 0)).toFixed(6)
+        : "Unavailable"}{" "}
+      {tokens.find(t => t.assetId === toAsset)?.symbol}
+    </strong>
+  </div>
+
+  <div className="quote-stat">
+    <span>Estimated time</span>
+    <strong>{quote.quote.timeEstimate} seconds</strong>
+  </div>
+</div>
     <p>Preview only. No transaction was executed.</p>
   </div>
 )}
