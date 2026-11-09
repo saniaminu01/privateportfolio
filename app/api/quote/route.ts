@@ -3,13 +3,48 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   try {
     const input = await req.json();
-    const required = ["originAsset", "destinationAsset", "amount", "recipient", "refundTo"];
-    for (const key of required) {
-      if (typeof input[key] !== "string" || !input[key].trim()) {
-        return NextResponse.json({ error: `Missing required field: ${key}` }, { status: 400 });
-      }
-    }
-    if (!/^\d+$/.test(input.amount)) return NextResponse.json({ error: "Amount must be in the token's smallest unit (integer string)." }, { status: 400 });
+
+if (!input || typeof input !== "object" || Array.isArray(input)) {
+  return NextResponse.json(
+    { error: "Invalid request body." },
+    { status: 400 }
+  );
+}
+
+const required = [
+  "originAsset",
+  "destinationAsset",
+  "amount",
+  "recipient",
+  "refundTo"
+];
+
+for (const key of required) {
+  if (
+    typeof input[key] !== "string" ||
+    !input[key].trim() ||
+    input[key].length > 256
+  ) {
+    return NextResponse.json(
+      { error: `Invalid or missing field: ${key}` },
+      { status: 400 }
+    );
+  }
+}
+
+if (!/^[1-9]\d{0,77}$/.test(input.amount)) {
+  return NextResponse.json(
+    { error: "Amount must be a positive integer in the token's smallest unit." },
+    { status: 400 }
+  );
+}
+
+if (input.originAsset === input.destinationAsset) {
+  return NextResponse.json(
+    { error: "Choose two different tokens." },
+    { status: 400 }
+  );
+}
         const payload = {
       dry: true,
       swapType: "EXACT_INPUT",
